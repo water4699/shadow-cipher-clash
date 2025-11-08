@@ -20,7 +20,10 @@ if (!rawAlchemyKey) {
 
 const scaffoldConfig = {
   // The networks on which your DApp is live
-  targetNetworks: [chains.hardhat, chains.sepolia],
+  // Use only Sepolia in production (Vercel), allow both in local development
+  targetNetworks: process.env.NEXT_PUBLIC_VERCEL_ENV 
+    ? [chains.sepolia] 
+    : [chains.hardhat, chains.sepolia],
   // The interval at which your front-end polls the RPC servers for new data (it has no effect if you only target the local network (default is 4000))
   pollingInterval: 30000,
   // This is ours Alchemy's default API key.
@@ -33,15 +36,15 @@ const scaffoldConfig = {
   rpcOverrides: {
     // Example:
     // [chains.mainnet.id]: "https://mainnet.rpc.buidlguidl.com",
-    // Local Hardhat node for development
-    [chains.hardhat.id]: "http://127.0.0.1:8545",
+    // Local Hardhat node for development (only available locally)
+    ...(process.env.NEXT_PUBLIC_VERCEL_ENV ? {} : { [chains.hardhat.id]: "http://127.0.0.1:8545" }),
   },
   // This is ours WalletConnect's default project ID.
   // You can get your own at https://cloud.walletconnect.com
   // It's recommended to store it in an env variable:
   // .env.local for local testing, and in the Vercel/system env config for live apps.
   walletConnectProjectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "3a8170812b534d0ff9d794f19a901d64",
-  onlyLocalBurnerWallet: true,
+  onlyLocalBurnerWallet: process.env.NEXT_PUBLIC_VERCEL_ENV ? false : true,
 } as const satisfies ScaffoldConfig;
 
 export default scaffoldConfig;
